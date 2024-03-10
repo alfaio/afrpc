@@ -7,27 +7,28 @@
         <artifactId>afrpc</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>afrpc-core</artifactId>
-    <name>afrpc-core</name>
-    <description>afrpc-core</description>
+    <artifactId>afrpc-demo-consumer</artifactId>
+    <name>afrpc-demo-consumer</name>
+    <description>afrpc-demo-consumer</description>
     <properties>
         <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.83</version>
+            <groupId>cn.yoube</groupId>
+            <artifactId>afrpc-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
+            <groupId>cn.yoube</groupId>
+            <artifactId>afrpc-demo-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

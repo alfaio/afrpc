@@ -1,4 +1,4 @@
-package cn.yoube.afrpc.core.api;
+package cn.yoube.afrpc.demo.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,14 +6,13 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author LimMF
- * @since 2024/3/7
+ * @since 2024/3/10
  **/
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RpcResponse {
+public class Order {
 
-    Boolean status;
-    Object data;
-    Exception exception;
+    Long id;
+    Float amount;
 }

@@ -22,5 +22,6 @@
         <module>afrpc-core</module>
         <module>afrpc-demo-api</module>
         <module>afrpc-demo-provider</module>
+        <module>afrpc-demo-consumer</module>
     </modules>
 </project>
