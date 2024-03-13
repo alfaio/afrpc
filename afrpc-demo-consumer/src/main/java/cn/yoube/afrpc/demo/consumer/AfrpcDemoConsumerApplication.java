@@ -3,6 +3,7 @@ package cn.yoube.afrpc.demo.consumer;
 import cn.yoube.afrpc.core.annotation.RpcConsumer;
 import cn.yoube.afrpc.core.consumer.ConsumerConfig;
 import cn.yoube.afrpc.demo.api.OrderService;
+import cn.yoube.afrpc.demo.api.User;
 import cn.yoube.afrpc.demo.api.UserService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,17 +27,53 @@ public class AfrpcDemoConsumerApplication {
     @Bean
     public ApplicationRunner consumerRunner() {
         return x -> {
-            System.out.println(userService.findById(100));
 
-//            System.out.println(userService.toString());
+            System.out.println(" userService.getId(10) = " + userService.getId(10));
 
-//            System.out.println(userService.getId(100));
+            System.out.println(" userService.getId(10f) = " +
+                    userService.getId(10f));
+
+            System.out.println(" userService.getId(new User(100,\"AF\")) = " +
+                    userService.getId(new User(100,"AF")));
+
+            User user = userService.findById(1);
+            System.out.println("RPC result userService.findById(1) = " + user);
+
+            User user1 = userService.findById(1, "ak");
+            System.out.println("RPC result userService.findById(1, \"ak\") = " + user1);
 
             System.out.println(userService.getName());
 
-//            System.out.println(orderService.findById(10));
+            System.out.println(userService.getName(123));
 
-//            System.out.println(orderService.findById(404));
+            System.out.println(userService.toString());
+
+            System.out.println(userService.getId(11));
+
+            System.out.println(userService.getName());
+
+            System.out.println(" ===> userService.getLongIds()");
+            for (long id : userService.getLongIds()) {
+                System.out.println(id);
+            }
+
+            System.out.println(" ===> userService.getLongIds(int[] ids)");
+            for (long id : userService.getIds(new int[]{4,5,6})) {
+                System.out.println(id);
+            }
+
+            System.out.println(" ===> userService.getLongIds(Long[] longIds)");
+            for (Long id : userService.getLongIds(new Long[]{10L,15L,16L})) {
+                System.out.println(id);
+            }
+
+            //Order order = orderService.findById(2);
+            //System.out.println("RPC result orderService.findById(2) = " + order);
+
+            //demo2.test();
+
+//            Order order404 = orderService.findById(404);
+//            System.out.println("RPC result orderService.findById(2) = " + order404);
         };
     }
 }

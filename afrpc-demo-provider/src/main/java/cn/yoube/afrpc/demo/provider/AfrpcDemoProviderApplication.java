@@ -4,6 +4,8 @@ import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
 import cn.yoube.afrpc.core.provider.ProviderBootstrap;
 import cn.yoube.afrpc.core.provider.ProviderConfig;
+import cn.yoube.afrpc.core.util.MethodUtils;
+import cn.yoube.afrpc.demo.api.UserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -41,12 +43,19 @@ public class AfrpcDemoProviderApplication {
     @Bean
     ApplicationRunner applicationRunner() {
         return args -> {
-            RpcRequest request = new RpcRequest();
+            /*RpcRequest request = new RpcRequest();
             request.setService("cn.yoube.afrpc.demo.api.UserService");
-            request.setMethod("findById");
-            request.setArgs(new Object[]{100});
+            request.setMethodSign("findById@1_int");
+            request.setArgs(new Object[]{100L});
             RpcResponse response = invoke(request);
             System.out.println(response);
+
+            RpcRequest request2 = new RpcRequest();
+            request2.setService("cn.yoube.afrpc.demo.api.UserService");
+            request2.setMethodSign("findById@2_int_java.lang.String");
+            request2.setArgs(new Object[]{100L, "alfa"});
+            RpcResponse response2 = invoke(request2);
+            System.out.println(response2);*/
         };
     }
 

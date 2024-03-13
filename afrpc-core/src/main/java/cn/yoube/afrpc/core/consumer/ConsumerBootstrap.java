@@ -46,7 +46,7 @@ public class ConsumerBootstrap implements ApplicationContextAware {
 
     private Object createConsumer(Class<?> service) {
         return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service},
-                new AlInvocationHandler(service));
+                new AfInvocationHandler(service));
     }
 
     private List<Field> findAnnotatedField(Class<?> aClass) {

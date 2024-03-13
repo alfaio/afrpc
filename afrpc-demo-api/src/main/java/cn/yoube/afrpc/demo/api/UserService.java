@@ -2,9 +2,25 @@ package cn.yoube.afrpc.demo.api;
 
 public interface UserService {
 
-    User findById(Integer id);
+    User findById(int id);
 
-    Integer getId(Integer id);
+    User findById(int id, String name);
+
+    long getId(long id);
+
+    long getId(User user);
+
+    long getId(float id);
 
     String getName();
+
+    String getName(int id);
+
+    int[] getIds();
+
+    long[] getLongIds();
+
+    int[] getIds(int[] ids);
+
+    Long[] getLongIds(Long[] longIds);
 }
