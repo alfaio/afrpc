@@ -1,7 +1,6 @@
 package cn.yoube.afrpc.core.consumer;
 
-import cn.yoube.afrpc.core.api.RpcRequest;
-import cn.yoube.afrpc.core.api.RpcResponse;
+import cn.yoube.afrpc.core.api.*;
 import cn.yoube.afrpc.core.util.MethodUtils;
 import cn.yoube.afrpc.core.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,9 +24,13 @@ public class AfInvocationHandler implements InvocationHandler {
     final static MediaType MEDIA_JSON = MediaType.get("application/json");
 
     Class<?> service;
+    RpcContext context;
+    List<String> providers;
 
-    public AfInvocationHandler(Class<?> service) {
+    public AfInvocationHandler(Class<?> service, RpcContext context, List<String> providers) {
         this.service = service;
+        this.context = context;
+        this.providers = providers;
     }
 
     @Override
@@ -38,7 +42,11 @@ public class AfInvocationHandler implements InvocationHandler {
         request.setService(service.getCanonicalName());
         request.setMethodSign(MethodUtils.methodSign(method));
         request.setArgs(args);
-        RpcResponse response = post(request);
+
+        List<String> urls = context.getRouter().choose(providers);
+        String url = (String) context.getLoadBalancer().choose(urls);
+
+        RpcResponse response = post(request, url);
         if (response.getStatus()) {
             Object data = response.getData();
             if (data instanceof JSONObject jsonObject) {
@@ -66,10 +74,10 @@ public class AfInvocationHandler implements InvocationHandler {
             .writeTimeout(1, TimeUnit.SECONDS)
             .connectTimeout(1, TimeUnit.SECONDS)
             .build();
-    private RpcResponse post(RpcRequest request) {
+    private RpcResponse post(RpcRequest request, String url) {
         String reqJson = JSON.toJSONString(request);
         Request req = new Request.Builder()
-                .url("http://localhost:8080/")
+                .url(url)
                 .post(RequestBody.create(reqJson, MEDIA_JSON))
                 .build();
         try {

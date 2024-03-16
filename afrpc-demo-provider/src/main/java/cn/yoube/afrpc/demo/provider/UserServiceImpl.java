@@ -3,6 +3,8 @@ package cn.yoube.afrpc.demo.provider;
 import cn.yoube.afrpc.core.annotation.RpcProvider;
 import cn.yoube.afrpc.demo.api.User;
 import cn.yoube.afrpc.demo.api.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,9 +14,14 @@ import org.springframework.stereotype.Component;
 @Component
 @RpcProvider
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    Environment environment;
+
     @Override
     public User findById(int id) {
-        return new User(id, "AF-" + System.currentTimeMillis());
+        return new User(id, "AF-" + environment.getProperty("server.port") +
+                "_" + System.currentTimeMillis());
     }
 
     @Override

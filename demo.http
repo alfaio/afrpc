@@ -1,9 +1,13 @@
+### 获取8088用户
+GET http://localhost:8088/?id=100
+
+
 ### 根据id获取用户
-POST http://localhost:8080/
+POST http://localhost:8081/
 Content-Type: application/json
 
 {
   "service": "cn.yoube.afrpc.demo.api.UserService",
-  "method": "findById",
+  "methodSign": "findById@1_int",
   "args": [200]
 }
