@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author LimMF
  * @since 2024/3/7
@@ -72,5 +76,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long[] getLongIds(Long[] longIds) {
         return longIds;
+    }
+
+    @Override
+    public List<User> getList(List<User> userList) {
+        return userList;
+    }
+
+    @Override
+    public Set<User> getSet(Set<User> userSet) {
+        return userSet;
+    }
+
+    @Override
+    public Map<String, User> getMap(Map<String, User> userMap) {
+        return userMap;
+    }
+
+    @Override
+    public Boolean getFlag(boolean flag) {
+        return flag;
     }
 }

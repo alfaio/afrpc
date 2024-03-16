@@ -9,10 +9,8 @@ import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,21 +45,53 @@ public class AfInvocationHandler implements InvocationHandler {
         String url = (String) context.getLoadBalancer().choose(urls);
 
         RpcResponse response = post(request, url);
+        Class<?> returnType = method.getReturnType();
         if (response.getStatus()) {
             Object data = response.getData();
             if (data instanceof JSONObject jsonObject) {
-                return jsonObject.toJavaObject(method.getReturnType());
+                if (Map.class.isAssignableFrom(returnType)) {
+                    Map resultMap = new HashMap();
+                    Type genericReturnType = method.getGenericReturnType();
+                    if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        Class<?> keyType = (Class<?>) actualTypeArguments[0];
+                        Class<?> valueType = (Class<?>) actualTypeArguments[1];
+                        jsonObject.entrySet().forEach(entry->{
+                            resultMap.put(TypeUtils.cast(entry.getKey(), keyType), TypeUtils.cast(entry.getValue(), valueType));
+                        });
+                        return resultMap;
+                    }
+                }
+                return jsonObject.toJavaObject(returnType);
             } else if (data instanceof JSONArray jsonArray){
                 Object[] array = jsonArray.toArray();
-                Class<?> componentType = method.getReturnType().getComponentType();
-                Object result = Array.newInstance(componentType, array.length);
-                for (int i = 0; i < array.length; i++) {
-                    Object target = TypeUtils.cast(array[i], componentType);
-                    Array.set(result, i , target);
+                if (returnType.isArray()) {
+                    Class<?> componentType = returnType.getComponentType();
+                    Object result = Array.newInstance(componentType, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        Object target = TypeUtils.cast(array[i], componentType);
+                        Array.set(result, i , target);
+                    }
+                    return result;
+                } else if (List.class.isAssignableFrom(returnType)) {
+                    Type genericReturnType = method.getGenericReturnType();
+                    System.out.println(genericReturnType);
+                    List<Object> result = new ArrayList<>(array.length);
+                    if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                        Type actualType = parameterizedType.getActualTypeArguments()[0];
+                        System.out.println(actualType);
+                        for (Object object : array) {
+                            result.add(TypeUtils.cast(object, (Class<?>) actualType));
+                        }
+                    } else {
+                        result.addAll(Arrays.asList(array));
+                    }
+                    return result;
+                } else {
+                    return null;
                 }
-                return result;
             }else {
-                return TypeUtils.cast(data, method.getReturnType());
+                return TypeUtils.cast(data, returnType);
             }
         } else {
             throw new RuntimeException(response.getException());

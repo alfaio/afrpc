@@ -41,6 +41,9 @@ public class TypeUtils {
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);
         }
+        if (origin instanceof JSONObject jsonObject) {
+            return jsonObject.toJavaObject(type);
+        }
         if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
             return Integer.valueOf(origin.toString());
         } else if (type.equals(Long.class) || type.equals(Long.TYPE)) {
@@ -55,6 +58,8 @@ public class TypeUtils {
             return Short.valueOf(origin.toString());
         } else if (type.equals(Character.class) || type.equals(Character.TYPE)) {
             return origin.toString().charAt(0);
+        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+            return Boolean.valueOf(origin.toString());
         }
         return null;
     }
