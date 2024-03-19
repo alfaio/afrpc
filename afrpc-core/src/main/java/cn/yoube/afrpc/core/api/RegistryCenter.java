@@ -1,5 +1,7 @@
 package cn.yoube.afrpc.core.api;
 
+import cn.yoube.afrpc.core.registry.ChangedListener;
+
 import java.util.List;
 
 /**
@@ -20,7 +22,7 @@ public interface RegistryCenter {
     //consumer侧
     List<String> fetchAll(String service);
 
-    List<String> subscribe();
+    void subscribe(String service, ChangedListener listener);
 
     class StaticRegistryCenter implements RegistryCenter {
 
@@ -56,8 +58,7 @@ public interface RegistryCenter {
         }
 
         @Override
-        public List<String> subscribe() {
-            return null;
+        public void subscribe(String service, ChangedListener listener) {
         }
     }
 

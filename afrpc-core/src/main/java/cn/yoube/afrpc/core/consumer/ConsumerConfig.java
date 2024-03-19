@@ -4,6 +4,7 @@ import cn.yoube.afrpc.core.api.LoadBalancer;
 import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.Router;
 import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
+import cn.yoube.afrpc.core.registry.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -47,8 +48,8 @@ public class ConsumerConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public RegistryCenter.StaticRegistryCenter staticRegistryCenter() {
-        return new RegistryCenter.StaticRegistryCenter(List.of(servers.split(",")));
+    public RegistryCenter consumer_rc() {
+        return new ZkRegistryCenter();
     }
 
 }

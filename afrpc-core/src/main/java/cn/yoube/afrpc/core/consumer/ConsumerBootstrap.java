@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author LimMF
@@ -69,9 +70,19 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = registryCenter.fetchAll(serviceName);
-        return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service},
-                new AfInvocationHandler(service, context, providers));
+        List<String> providers = mapUrl(registryCenter.fetchAll(serviceName));
+        System.out.println(" ===> map to providers: ");
+        providers.forEach(System.out::println);
+
+        registryCenter.subscribe(serviceName, event -> {
+            providers.clear();
+            providers.addAll(mapUrl(event.getData()));
+        });
+        return createConsumer(service, context, providers);
+    }
+
+    private List<String> mapUrl(List<String> nodes) {
+        return nodes.stream().map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
     }
 
     private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {

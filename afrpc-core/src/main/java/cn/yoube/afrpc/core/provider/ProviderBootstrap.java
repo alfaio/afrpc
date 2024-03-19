@@ -1,13 +1,17 @@
 package cn.yoube.afrpc.core.provider;
 
 import cn.yoube.afrpc.core.annotation.RpcProvider;
+import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
 import cn.yoube.afrpc.core.meta.ProviderMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
 import cn.yoube.afrpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Data;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,6 +19,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +35,37 @@ public class ProviderBootstrap implements ApplicationContextAware {
     ApplicationContext applicationContext;
 
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
+    private String ip;
+    private String instance;
+    @Value("${server.port}")
+    private String port;
 
     @PostConstruct
-    private void start() {
+    private void init() {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(RpcProvider.class);
         providers.values().forEach(this::setSkeleton);
+    }
+
+    @SneakyThrows
+    public void start() {
+        ip = InetAddress.getLocalHost().getHostAddress();
+        instance = ip + "_" + port;
+        skeleton.keySet().forEach(this::registryService);
+    }
+
+    @PreDestroy
+    private void stop() {
+        skeleton.keySet().forEach(this::unRegistryService);
+    }
+
+    private void registryService(String service) {
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        rc.register(service, instance);
+    }
+
+    private void unRegistryService(String service) {
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        rc.unRegister(service, instance);
     }
 
     public RpcResponse invoke(RpcRequest request) {
