@@ -89,7 +89,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Override
     public void subscribe(String service, ChangedListener listener) {
         final TreeCache cache = TreeCache.newBuilder(client, "/" + service)
-                .setCacheData(true).build();
+                .setCacheData(true).setMaxDepth(2).build();
         cache.getListenable().addListener((curator, event) -> {
             // 有任何节点变动就会执行
             System.out.println("zh subscribe event: " + event);
