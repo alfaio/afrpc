@@ -55,7 +55,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void unRegister(String service, String instance) {
+    public void unregister(String service, String instance) {
         String servicePath = "/" + service;
         try {
             // 创建服务是否存在
@@ -65,7 +65,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             // 删除实例节点
             String instancePath = servicePath + "/" + instance;
             client.delete().forPath(instancePath);
-            System.out.println(" ===> unRegister to zk: " + instance);
+            System.out.println(" ===> unregister from zk: " + instance);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

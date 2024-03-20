@@ -17,7 +17,7 @@ public interface RegistryCenter {
     //provider侧
     void register(String service, String instance);
 
-    void unRegister(String service, String instance);
+    void unregister(String service, String instance);
 
     //consumer侧
     List<String> fetchAll(String service);
@@ -48,7 +48,7 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void unRegister(String service, String instance) {
+        public void unregister(String service, String instance) {
 
         }
 

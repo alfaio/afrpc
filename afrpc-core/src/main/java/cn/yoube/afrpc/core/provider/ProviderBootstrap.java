@@ -33,6 +33,7 @@ import java.util.Optional;
 public class ProviderBootstrap implements ApplicationContextAware {
 
     ApplicationContext applicationContext;
+    RegistryCenter rc;
 
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
     private String ip;
@@ -44,10 +45,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private void init() {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(RpcProvider.class);
         providers.values().forEach(this::setSkeleton);
+        rc = applicationContext.getBean(RegistryCenter.class);
     }
 
     @SneakyThrows
     public void start() {
+        rc.start();
         ip = InetAddress.getLocalHost().getHostAddress();
         instance = ip + "_" + port;
         skeleton.keySet().forEach(this::registryService);
@@ -55,7 +58,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @PreDestroy
     private void stop() {
+        System.out.println(" ===> unregister all services");
         skeleton.keySet().forEach(this::unRegistryService);
+        rc.stop();
     }
 
     private void registryService(String service) {
@@ -65,7 +70,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void unRegistryService(String service) {
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-        rc.unRegister(service, instance);
+        rc.unregister(service, instance);
     }
 
     public RpcResponse invoke(RpcRequest request) {
