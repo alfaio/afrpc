@@ -2,26 +2,17 @@ package cn.yoube.afrpc.demo.provider;
 
 import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
-import cn.yoube.afrpc.core.provider.ProviderBootstrap;
 import cn.yoube.afrpc.core.provider.ProviderConfig;
-import cn.yoube.afrpc.core.util.MethodUtils;
-import cn.yoube.afrpc.demo.api.UserService;
-import jakarta.annotation.PostConstruct;
+import cn.yoube.afrpc.core.provider.ProviderInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 @SpringBootApplication
 @RestController
@@ -33,11 +24,11 @@ public class AfrpcDemoProviderApplication {
     }
 
     @Autowired
-    ProviderBootstrap providerBootstrap;
+    ProviderInvoker providerInvoker;
 
     @PostMapping(value = "/")
-    public RpcResponse invoke(@RequestBody RpcRequest request) {
-        return providerBootstrap.invoke(request);
+    public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
+        return providerInvoker.invoke(request);
     }
 
     @Bean
@@ -47,14 +38,14 @@ public class AfrpcDemoProviderApplication {
             request.setService("cn.yoube.afrpc.demo.api.UserService");
             request.setMethodSign("findById@1_int");
             request.setArgs(new Object[]{100L});
-            RpcResponse response = invoke(request);
+            RpcResponse<Object> response = invoke(request);
             System.out.println(response);
 
             RpcRequest request2 = new RpcRequest();
             request2.setService("cn.yoube.afrpc.demo.api.UserService");
             request2.setMethodSign("findById@2_int_java.lang.String");
             request2.setArgs(new Object[]{100L, "alfa"});
-            RpcResponse response2 = invoke(request2);
+            RpcResponse<Object> response2 = invoke(request2);
             System.out.println(response2);*/
         };
     }

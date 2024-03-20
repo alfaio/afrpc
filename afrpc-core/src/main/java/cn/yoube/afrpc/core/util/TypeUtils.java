@@ -1,16 +1,68 @@
 package cn.yoube.afrpc.core.util;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.HashMap;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * @author LimMF
  * @since 2024/3/13
  **/
 public class TypeUtils {
+
+    public static Object castMethodResult(Method method, Object data) {
+        Class<?> returnType = method.getReturnType();
+        if (data instanceof JSONObject jsonObject) {
+            if (Map.class.isAssignableFrom(returnType)) {
+                Map resultMap = new HashMap();
+                Type genericReturnType = method.getGenericReturnType();
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    Class<?> keyType = (Class<?>) actualTypeArguments[0];
+                    Class<?> valueType = (Class<?>) actualTypeArguments[1];
+                    jsonObject.entrySet().forEach(entry->{
+                        resultMap.put(TypeUtils.cast(entry.getKey(), keyType), TypeUtils.cast(entry.getValue(), valueType));
+                    });
+                    return resultMap;
+                }
+            }
+            return jsonObject.toJavaObject(returnType);
+        } else if (data instanceof JSONArray jsonArray){
+            Object[] array = jsonArray.toArray();
+            if (returnType.isArray()) {
+                Class<?> componentType = returnType.getComponentType();
+                Object result = Array.newInstance(componentType, array.length);
+                for (int i = 0; i < array.length; i++) {
+                    Object target = TypeUtils.cast(array[i], componentType);
+                    Array.set(result, i , target);
+                }
+                return result;
+            } else if (List.class.isAssignableFrom(returnType)) {
+                Type genericReturnType = method.getGenericReturnType();
+                System.out.println(genericReturnType);
+                List<Object> result = new ArrayList<>(array.length);
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Type actualType = parameterizedType.getActualTypeArguments()[0];
+                    System.out.println(actualType);
+                    for (Object object : array) {
+                        result.add(TypeUtils.cast(object, (Class<?>) actualType));
+                    }
+                } else {
+                    result.addAll(Arrays.asList(array));
+                }
+                return result;
+            } else {
+                return null;
+            }
+        }else {
+            return TypeUtils.cast(data, returnType);
+        }
+    }
 
     public static Object cast(Object origin, Class<?> type) {
         if (origin == null) return null;

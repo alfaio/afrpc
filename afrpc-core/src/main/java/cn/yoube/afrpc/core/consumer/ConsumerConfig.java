@@ -4,15 +4,14 @@ import cn.yoube.afrpc.core.api.LoadBalancer;
 import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.Router;
 import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
-import cn.yoube.afrpc.core.registry.ZkRegistryCenter;
+import cn.yoube.afrpc.core.meta.InstanceMeta;
+import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-
-import java.util.List;
 
 /**
  * @author LimMF
@@ -38,12 +37,12 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public LoadBalancer loadBalancer() {
-        return new RoundRibonLoadBalancer();
+    public LoadBalancer<InstanceMeta> loadBalancer() {
+        return new RoundRibonLoadBalancer<>();
     }
 
     @Bean
-    public Router router() {
+    public Router<InstanceMeta> router() {
         return Router.Default;
     }
 

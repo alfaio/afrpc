@@ -1,5 +1,6 @@
 package cn.yoube.afrpc.core.registry;
 
+import cn.yoube.afrpc.core.meta.InstanceMeta;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,5 +14,5 @@ import java.util.List;
 @AllArgsConstructor
 public class Event {
 
-    List<String> data;
+    List<InstanceMeta> data;
 }

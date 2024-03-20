@@ -5,7 +5,11 @@ import cn.yoube.afrpc.core.api.LoadBalancer;
 import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.Router;
 import cn.yoube.afrpc.core.api.RpcContext;
+import cn.yoube.afrpc.core.meta.InstanceMeta;
+import cn.yoube.afrpc.core.meta.ServiceMeta;
+import cn.yoube.afrpc.core.util.MethodUtils;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -13,13 +17,14 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * 消费者启动类
+ *
  * @author LimMF
  * @since 2024/3/10
  **/
@@ -30,10 +35,19 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
     public void start() {
 
-        Router router = applicationContext.getBean(Router.class);
-        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
 
         RpcContext context = new RpcContext();
@@ -49,7 +63,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             Object bean = applicationContext.getBean(name);
-            List<Field> fields = findAnnotatedField(bean.getClass());
+            List<Field> fields = MethodUtils.findAnnotatedField(bean.getClass(), RpcConsumer.class);
             fields.stream().forEach(f -> {
                 try {
                     Class<?> service = f.getType();
@@ -58,6 +72,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     if (consumer == null) {
 //                        consumer = createConsumer(service, context, providers);
                         consumer = createFromRegistry(service, context, registryCenter);
+                        stub.put(serviceName, consumer);
                     }
                     f.setAccessible(true);
                     f.set(bean, consumer);
@@ -70,37 +85,23 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = mapUrl(registryCenter.fetchAll(serviceName));
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .app(app).namespace(namespace).env(env).name(serviceName).build();
+        List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
         System.out.println(" ===> map to providers: ");
         providers.forEach(System.out::println);
 
-        registryCenter.subscribe(serviceName, event -> {
+        registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();
-            providers.addAll(mapUrl(event.getData()));
+            providers.addAll(event.getData());
         });
         return createConsumer(service, context, providers);
     }
 
-    private List<String> mapUrl(List<String> nodes) {
-        return nodes.stream().map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
-    }
 
-    private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {
+    private Object createConsumer(Class<?> service, RpcContext context, List<InstanceMeta> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service},
                 new AfInvocationHandler(service, context, providers));
     }
 
-    private List<Field> findAnnotatedField(Class<?> aClass) {
-        List<Field> result = new ArrayList<>();
-        while (aClass != null) {
-            Field[] fields = aClass.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(RpcConsumer.class)) {
-                    result.add(field);
-                }
-            }
-            aClass = aClass.getSuperclass();
-        }
-        return result;
-    }
 }

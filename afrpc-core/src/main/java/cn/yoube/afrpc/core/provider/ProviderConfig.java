@@ -1,7 +1,7 @@
 package cn.yoube.afrpc.core.provider;
 
 import cn.yoube.afrpc.core.api.RegistryCenter;
-import cn.yoube.afrpc.core.registry.ZkRegistryCenter;
+import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +21,11 @@ public class ProviderConfig {
     }
 
     @Bean
+    ProviderInvoker providerInvoker(@Autowired ProviderBootstrap providerBootstrap) {
+        return new ProviderInvoker(providerBootstrap);
+    }
+
+    @Bean
     @Order(Integer.MIN_VALUE)
     public ApplicationRunner consumer_Runner(@Autowired ProviderBootstrap providerBootstrap) {
         return x -> {
@@ -28,8 +33,7 @@ public class ProviderConfig {
         };
     }
 
-//    @Bean(initMethod = "start", destroyMethod = "stop")
-    @Bean
+    @Bean //(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter provider_rc() {
         return new ZkRegistryCenter();
     }
