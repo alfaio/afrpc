@@ -2,6 +2,7 @@ package cn.yoube.afrpc.core.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -13,6 +14,7 @@ import java.util.*;
  * @author LimMF
  * @since 2024/3/13
  **/
+@Slf4j
 public class TypeUtils {
 
     public static Object castMethodResult(Method method, Object data) {
@@ -44,11 +46,9 @@ public class TypeUtils {
                 return result;
             } else if (List.class.isAssignableFrom(returnType)) {
                 Type genericReturnType = method.getGenericReturnType();
-                System.out.println(genericReturnType);
                 List<Object> result = new ArrayList<>(array.length);
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Type actualType = parameterizedType.getActualTypeArguments()[0];
-                    System.out.println(actualType);
                     for (Object object : array) {
                         result.add(TypeUtils.cast(object, (Class<?>) actualType));
                     }

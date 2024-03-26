@@ -7,6 +7,7 @@ import cn.yoube.afrpc.core.consumer.http.OkHttpInvoker;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
 import cn.yoube.afrpc.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author LimMF
  * @since 2024/3/10
  **/
+@Slf4j
 public class AfInvocationHandler implements InvocationHandler {
 
     Class<?> service;
@@ -43,7 +45,7 @@ public class AfInvocationHandler implements InvocationHandler {
 
         List<InstanceMeta> instances = context.getRouter().choose(providers);
         InstanceMeta instance = context.getLoadBalancer().choose(instances);
-        System.out.println(" ===> loadBalance choose instance: " + instance);
+        log.debug(" ===> loadBalance choose instance: " + instance);
 
         RpcResponse<?> response = httpInvoker.post(request, instance.toUrl());
         if (response.getStatus()) {

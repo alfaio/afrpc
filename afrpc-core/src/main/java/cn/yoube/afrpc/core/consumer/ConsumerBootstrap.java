@@ -9,6 +9,7 @@ import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.meta.ServiceMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * @since 2024/3/10
  **/
 @Data
+@Slf4j
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
     ApplicationContext applicationContext;
     Environment environment;
@@ -56,7 +58,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
         /*String urls = environment.getProperty("afrpc.providers", "");
         if (Strings.isEmpty(urls)) {
-            System.out.println("afrpc.providers is empty");
+            log.info("afrpc.providers is empty");
         }
         List<String> providers = List.of(urls.split(","));*/
 
@@ -88,7 +90,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         ServiceMeta serviceMeta = ServiceMeta.builder()
                 .app(app).namespace(namespace).env(env).name(serviceName).build();
         List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
-        System.out.println(" ===> map to providers: ");
+        log.info(" ===> map to providers: ");
         providers.forEach(System.out::println);
 
         registryCenter.subscribe(serviceMeta, event -> {

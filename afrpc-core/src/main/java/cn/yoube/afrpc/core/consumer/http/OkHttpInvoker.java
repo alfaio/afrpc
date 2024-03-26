@@ -4,7 +4,7 @@ import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
 import cn.yoube.afrpc.core.consumer.HttpInvoker;
 import com.alibaba.fastjson.JSON;
-import com.google.errorprone.annotations.Var;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @author LimMF
  * @since 2024/3/20
  **/
+@Slf4j
 public class OkHttpInvoker  implements HttpInvoker {
     final static MediaType MEDIA_JSON = MediaType.get("application/json");
 
@@ -31,14 +32,14 @@ public class OkHttpInvoker  implements HttpInvoker {
     @Override
     public RpcResponse<?> post(RpcRequest request, String url) {
         String reqJson = JSON.toJSONString(request);
-        System.out.println(" ===> request json = "+ reqJson);
+        log.debug(" ===> request json = "+ reqJson);
         Request req = new Request.Builder()
                 .url(url)
                 .post(RequestBody.create(reqJson, MEDIA_JSON))
                 .build();
         try {
             String respJson = client.newCall(req).execute().body().string();
-            System.out.println(" ===> response json = " + respJson);
+            log.debug(" ===> response json = " + respJson);
             RpcResponse<Object> response = JSON.parseObject(respJson, RpcResponse.class);
             return response;
         } catch (IOException e) {
