@@ -1,5 +1,6 @@
 package cn.yoube.afrpc.core.consumer;
 
+import cn.yoube.afrpc.core.api.Filter;
 import cn.yoube.afrpc.core.api.RpcContext;
 import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
@@ -8,6 +9,7 @@ import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
 import cn.yoube.afrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -43,11 +45,30 @@ public class AfInvocationHandler implements InvocationHandler {
         request.setMethodSign(MethodUtils.methodSign(method));
         request.setArgs(args);
 
+        for (Filter filter : context.getFilters()) {
+            RpcResponse preResponse = filter.preFilter(request);
+            if (preResponse != null) {
+                log.debug(filter.getClass().getName() + " ===> preFilter: " + preResponse.toString());
+                castReturnResult(method, preResponse);
+            }
+        }
+
         List<InstanceMeta> instances = context.getRouter().choose(providers);
         InstanceMeta instance = context.getLoadBalancer().choose(instances);
         log.debug(" ===> loadBalance choose instance: " + instance);
 
         RpcResponse<?> response = httpInvoker.post(request, instance.toUrl());
+
+        // 这里拿到的可能不是最终结果
+        for (Filter filter : context.getFilters()) {
+            response = filter.postFilter(request, response);
+        }
+
+        return castReturnResult(method, response);
+    }
+
+    @Nullable
+    private static Object castReturnResult(Method method, RpcResponse<?> response) {
         if (response.getStatus()) {
             Object data = response.getData();
             return TypeUtils.castMethodResult(method, data);

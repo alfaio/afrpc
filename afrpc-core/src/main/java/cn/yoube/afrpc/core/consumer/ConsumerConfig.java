@@ -1,9 +1,11 @@
 package cn.yoube.afrpc.core.consumer;
 
+import cn.yoube.afrpc.core.api.Filter;
 import cn.yoube.afrpc.core.api.LoadBalancer;
 import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.Router;
 import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
+import cn.yoube.afrpc.core.filter.CacheFilter;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,11 @@ public class ConsumerConfig {
     @Bean
     public Router<InstanceMeta> router() {
         return Router.Default;
+    }
+
+    @Bean
+    public Filter filter() {
+        return new CacheFilter();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

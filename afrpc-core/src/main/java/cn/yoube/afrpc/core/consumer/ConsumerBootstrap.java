@@ -1,10 +1,7 @@
 package cn.yoube.afrpc.core.consumer;
 
 import cn.yoube.afrpc.core.annotation.RpcConsumer;
-import cn.yoube.afrpc.core.api.LoadBalancer;
-import cn.yoube.afrpc.core.api.RegistryCenter;
-import cn.yoube.afrpc.core.api.Router;
-import cn.yoube.afrpc.core.api.RpcContext;
+import cn.yoube.afrpc.core.api.*;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.meta.ServiceMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
@@ -51,10 +48,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         Router<InstanceMeta> router = applicationContext.getBean(Router.class);
         LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
 
         RpcContext context = new RpcContext();
         context.setRouter(router);
         context.setLoadBalancer(loadBalancer);
+        context.setFilters(filters);
 
         /*String urls = environment.getProperty("afrpc.providers", "");
         if (Strings.isEmpty(urls)) {
