@@ -1,5 +1,6 @@
 package cn.yoube.afrpc.demo.consumer;
 
+import cn.yoube.afrpc.core.test.TestZkServer;
 import cn.yoube.afrpc.demo.provider.AfrpcDemoProviderApplication;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,8 +14,11 @@ class AfrpcDemoConsumerApplicationTests {
 
     static ApplicationContext context;
 
+    static TestZkServer zkServer = new TestZkServer();
+
     @BeforeAll
     static void init() {
+        zkServer.start();
         context = SpringApplication.run(AfrpcDemoProviderApplication.class, "--server.port=8084");
     }
 
@@ -25,6 +29,7 @@ class AfrpcDemoConsumerApplicationTests {
     @AfterAll
     static void destory() {
         SpringApplication.exit(context, () -> 1);
+        zkServer.stop();
     }
 
 }
