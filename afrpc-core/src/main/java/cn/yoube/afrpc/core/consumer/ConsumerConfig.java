@@ -6,6 +6,7 @@ import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.Router;
 import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.yoube.afrpc.core.filter.CacheFilter;
+import cn.yoube.afrpc.core.filter.MockFilter;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +50,14 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public Filter filter() {
+    public Filter cacheFilter() {
         return new CacheFilter();
     }
+
+    /*@Bean
+    public Filter mockFilter() {
+        return new MockFilter();
+    }*/
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter consumer_rc() {
