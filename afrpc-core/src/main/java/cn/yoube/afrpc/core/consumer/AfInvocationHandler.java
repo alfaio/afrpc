@@ -1,9 +1,6 @@
 package cn.yoube.afrpc.core.consumer;
 
-import cn.yoube.afrpc.core.api.Filter;
-import cn.yoube.afrpc.core.api.RpcContext;
-import cn.yoube.afrpc.core.api.RpcRequest;
-import cn.yoube.afrpc.core.api.RpcResponse;
+import cn.yoube.afrpc.core.api.*;
 import cn.yoube.afrpc.core.consumer.http.OkHttpInvoker;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
@@ -73,7 +70,10 @@ public class AfInvocationHandler implements InvocationHandler {
             Object data = response.getData();
             return TypeUtils.castMethodResult(method, data);
         } else {
-            throw new RuntimeException(response.getException());
+            if (response.getException() instanceof RpcException rpcException) {
+                throw rpcException;
+            }
+            throw new RpcException(response.getException(), RpcException.UnknownEx);
         }
     }
 

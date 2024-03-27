@@ -1,5 +1,6 @@
 package cn.yoube.afrpc.core.provider;
 
+import cn.yoube.afrpc.core.api.RpcException;
 import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
 import cn.yoube.afrpc.core.meta.ProviderMeta;
@@ -33,9 +34,9 @@ public class ProviderInvoker {
             response.setStatus(true);
             response.setData(data);
         } catch (InvocationTargetException e) {
-            response.setException(new RuntimeException(e.getTargetException().getMessage()));
+            response.setException(new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
-            response.setException(new RuntimeException(e.getMessage()));
+            response.setException(new RpcException(e.getMessage()));
         }
         return response;
     }

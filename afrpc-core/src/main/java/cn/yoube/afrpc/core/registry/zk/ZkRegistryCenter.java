@@ -1,6 +1,7 @@
 package cn.yoube.afrpc.core.registry.zk;
 
 import cn.yoube.afrpc.core.api.RegistryCenter;
+import cn.yoube.afrpc.core.api.RpcException;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.meta.ServiceMeta;
 import cn.yoube.afrpc.core.registry.ChangedListener;
@@ -63,7 +64,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
             log.info(" ===> register to zk: " + instance);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -80,7 +81,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             client.delete().forPath(instancePath);
             log.info(" ===> unregister from zk: " + instance.toPath());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -97,7 +98,7 @@ public class ZkRegistryCenter implements RegistryCenter {
                 return InstanceMeta.http(strings[0], Integer.valueOf(strings[1]));
             }).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 
