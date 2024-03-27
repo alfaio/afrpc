@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 /**
@@ -24,12 +25,14 @@ public class AfInvocationHandler implements InvocationHandler {
     Class<?> service;
     RpcContext context;
     List<InstanceMeta> providers;
-    HttpInvoker httpInvoker = new OkHttpInvoker();
+    HttpInvoker httpInvoker;
 
     public AfInvocationHandler(Class<?> service, RpcContext context, List<InstanceMeta> providers) {
         this.service = service;
         this.context = context;
         this.providers = providers;
+        int timeout = Integer.parseInt(context.getParameters().getOrDefault("app.timeout", "1000"));
+        this.httpInvoker = new OkHttpInvoker(timeout);
     }
 
     @Override
@@ -41,27 +44,41 @@ public class AfInvocationHandler implements InvocationHandler {
         request.setService(service.getCanonicalName());
         request.setMethodSign(MethodUtils.methodSign(method));
         request.setArgs(args);
+        // 重试是否需要包含filter这段？？？
+        int retries = Integer.parseInt(context.getParameters()
+                .getOrDefault("app.retries", "1"));
 
-        for (Filter filter : context.getFilters()) {
-            RpcResponse preResponse = filter.preFilter(request);
-            if (preResponse != null) {
-                log.debug(filter.getClass().getName() + " ===> preFilter: " + preResponse.toString());
-                castReturnResult(method, preResponse);
+        while (retries-- > 0) {
+            log.debug(" ===> retries: " + retries);
+            try {
+                for (Filter filter : context.getFilters()) {
+                    RpcResponse preResponse = filter.preFilter(request);
+                    if (preResponse != null) {
+                        log.debug(filter.getClass().getName() + " ===> preFilter: " + preResponse.toString());
+                        castReturnResult(method, preResponse);
+                    }
+                }
+
+                List<InstanceMeta> instances = context.getRouter().choose(providers);
+                InstanceMeta instance = context.getLoadBalancer().choose(instances);
+                log.debug(" ===> loadBalance choose instance: " + instance);
+
+                RpcResponse<?> response = httpInvoker.post(request, instance.toUrl());
+
+                // 这里拿到的可能不是最终结果
+                for (Filter filter : context.getFilters()) {
+                    response = filter.postFilter(request, response);
+                }
+
+                return castReturnResult(method, response);
+            } catch (Exception e) {
+                if (!(e.getCause() instanceof SocketTimeoutException)) {
+                    throw e;
+                }
             }
         }
+        return null;
 
-        List<InstanceMeta> instances = context.getRouter().choose(providers);
-        InstanceMeta instance = context.getLoadBalancer().choose(instances);
-        log.debug(" ===> loadBalance choose instance: " + instance);
-
-        RpcResponse<?> response = httpInvoker.post(request, instance.toUrl());
-
-        // 这里拿到的可能不是最终结果
-        for (Filter filter : context.getFilters()) {
-            response = filter.postFilter(request, response);
-        }
-
-        return castReturnResult(method, response);
     }
 
     @Nullable

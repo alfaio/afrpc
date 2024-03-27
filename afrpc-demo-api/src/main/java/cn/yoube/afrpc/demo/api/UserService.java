@@ -28,6 +28,8 @@ public interface UserService {
 
     Long[] getLongIds(Long[] longIds);
 
+    User[] findUsers(User[] users);
+
     List<User> getList(List<User> userList);
 
     Set<User> getSet(Set<User> userSet);
@@ -35,4 +37,10 @@ public interface UserService {
     Map<String, User> getMap(Map<String, User> userMap);
 
     Boolean getFlag(boolean flag);
+
+    User findById(long id);
+
+    User ex(boolean flag);
+
+    User findWithTimeout(int sleepTime);
 }

@@ -79,6 +79,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User[] findUsers(User[] users) {
+        return users;
+    }
+
+    @Override
     public List<User> getList(List<User> userList) {
         return userList;
     }
@@ -96,5 +101,30 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean getFlag(boolean flag) {
         return flag;
+    }
+
+    @Override
+    public User findById(long id) {
+        return new User(Long.valueOf(id).intValue(), "AF");
+    }
+
+    @Override
+    public User ex(boolean flag) {
+        if(flag) throw new RuntimeException("just throw an exception");
+        return new User(100, "af100");
+    }
+
+    @Override
+    public User findWithTimeout(int sleepTime) {
+        String port = environment.getProperty("server.port");
+        if ("8081".equals(port)) {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return new User(sleepTime, "AF-" + environment.getProperty("server.port") +
+                "_" + System.currentTimeMillis());
     }
 }
