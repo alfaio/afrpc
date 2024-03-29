@@ -40,7 +40,10 @@ public class AfrpcDemoConsumerApplication {
 
     @GetMapping("/find")
     public User find(@RequestParam("sleepTime") int sleepTime) {
-        return userService.findWithTimeout(sleepTime);
+        long start = System.currentTimeMillis();
+        User user = userService.findWithTimeout(sleepTime);
+        System.out.println("userService findWithTimeout take: " + (System.currentTimeMillis() - start) + "ms");
+        return user;
     }
 
 
@@ -51,7 +54,7 @@ public class AfrpcDemoConsumerApplication {
             userService.findWithTimeout(200);
             System.out.println("userService findWithTimeout take: " + (System.currentTimeMillis() - start) + "ms");
 
-            testAll();
+//            testAll();
         };
     }
 

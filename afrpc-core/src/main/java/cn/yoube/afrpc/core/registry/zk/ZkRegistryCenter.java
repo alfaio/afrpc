@@ -92,7 +92,6 @@ public class ZkRegistryCenter implements RegistryCenter {
             // 获取所以子节点
             List<String> nodes = client.getChildren().forPath(servicePath);
             log.info(" ===> fetchAll from zk: " + servicePath);
-            nodes.forEach(System.out::println);
             return nodes.stream().map(x -> {
                 String[] strings = x.split("_");
                 return InstanceMeta.http(strings[0], Integer.valueOf(strings[1]));

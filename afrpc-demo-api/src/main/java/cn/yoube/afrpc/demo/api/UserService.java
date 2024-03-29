@@ -43,4 +43,6 @@ public interface UserService {
     User ex(boolean flag);
 
     User findWithTimeout(int sleepTime);
+
+    void setSleepPorts(String ports);
 }

@@ -4,15 +4,14 @@ import cn.yoube.afrpc.core.api.RpcRequest;
 import cn.yoube.afrpc.core.api.RpcResponse;
 import cn.yoube.afrpc.core.provider.ProviderConfig;
 import cn.yoube.afrpc.core.provider.ProviderInvoker;
+import cn.yoube.afrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @SpringBootApplication
 @RestController
@@ -25,11 +24,24 @@ public class AfrpcDemoProviderApplication {
 
     @Autowired
     ProviderInvoker providerInvoker;
+    @Autowired
+    UserService userService;
 
     @PostMapping(value = "/")
     public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
         return providerInvoker.invoke(request);
     }
+
+
+    @GetMapping(value = "/setPorts")
+    public RpcResponse<String> setPorts(@RequestParam("ports") String ports) {
+         userService.setSleepPorts(ports);
+        RpcResponse<String> response = new RpcResponse<>();
+        response.setStatus(true);
+        response.setData("OK:" + ports);
+        return response;
+    }
+
 
     @Bean
     ApplicationRunner applicationRunner() {

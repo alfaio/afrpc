@@ -98,7 +98,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 .app(app).namespace(namespace).env(env).name(serviceName).build();
         List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
         log.info(" ===> map to providers: ");
-        providers.forEach(System.out::println);
 
         registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();

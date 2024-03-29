@@ -3,6 +3,9 @@ package cn.yoube.afrpc.demo.provider;
 import cn.yoube.afrpc.core.annotation.RpcProvider;
 import cn.yoube.afrpc.demo.api.User;
 import cn.yoube.afrpc.demo.api.UserService;
+import com.google.common.collect.Lists;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -15,6 +18,7 @@ import java.util.Set;
  * @author LimMF
  * @since 2024/3/7
  **/
+@Slf4j
 @Component
 @RpcProvider
 public class UserServiceImpl implements UserService {
@@ -114,17 +118,25 @@ public class UserServiceImpl implements UserService {
         return new User(100, "af100");
     }
 
+    private String sleepPorts = "8081";
+
     @Override
     public User findWithTimeout(int sleepTime) {
         String port = environment.getProperty("server.port");
-        if ("8081".equals(port)) {
+        if (Lists.newArrayList(sleepPorts.split(",")).contains(port)) {
             try {
                 Thread.sleep(sleepTime);
+                log.debug(" ===> sleep {} ms", sleepTime);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
         return new User(sleepTime, "AF-" + environment.getProperty("server.port") +
                 "_" + System.currentTimeMillis());
+    }
+
+    @Override
+    public void setSleepPorts(String ports) {
+        this.sleepPorts = ports;
     }
 }
