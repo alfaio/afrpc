@@ -4,6 +4,7 @@ import cn.yoube.afrpc.core.api.Filter;
 import cn.yoube.afrpc.core.api.LoadBalancer;
 import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.api.Router;
+import cn.yoube.afrpc.core.cluster.GrayRouter;
 import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.yoube.afrpc.core.filter.CacheFilter;
 import cn.yoube.afrpc.core.filter.MockFilter;
@@ -26,6 +27,9 @@ public class ConsumerConfig {
     @Value("${afrpc.providers}")
     String servers;
 
+    @Value("${app.grayRatio}")
+    private int grayRatio;
+
     @Bean
     ConsumerBootstrap consumerBootstrap() {
         return new ConsumerBootstrap();
@@ -46,7 +50,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router<InstanceMeta> router() {
-        return Router.Default;
+        return new GrayRouter(grayRatio);
     }
 
    /* @Bean

@@ -1,10 +1,13 @@
 package cn.yoube.afrpc.demo.consumer;
 
 import cn.yoube.afrpc.core.annotation.RpcConsumer;
+import cn.yoube.afrpc.core.api.Router;
+import cn.yoube.afrpc.core.cluster.GrayRouter;
 import cn.yoube.afrpc.core.consumer.ConsumerConfig;
 import cn.yoube.afrpc.demo.api.OrderService;
 import cn.yoube.afrpc.demo.api.User;
 import cn.yoube.afrpc.demo.api.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,8 +37,17 @@ public class AfrpcDemoConsumerApplication {
     }
 
     @GetMapping("/")
-    public User findById(@RequestParam int id) {
+    public User findById(@RequestParam("id") int id) {
         return userService.findById(id);
+    }
+
+    @Autowired
+    Router router;
+
+    @GetMapping("/gray")
+    public String gray(@RequestParam("ratio") int ratio) {
+        ((GrayRouter)router).setGrayRatio(ratio);
+        return "OK-new gray ratio is " + ratio;
     }
 
     @GetMapping("/find")

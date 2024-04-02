@@ -1,6 +1,9 @@
 ### 获取8088用户
 GET http://localhost:8088/?id=100
 
+### 修改灰度比例值
+GET http://localhost:8088/gray?ratio=100
+
 ### 通过8088调用超时接口
 GET http://localhost:8088/find?sleepTime=1000
 
