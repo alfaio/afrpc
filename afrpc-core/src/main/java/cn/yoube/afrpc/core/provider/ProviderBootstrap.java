@@ -49,6 +49,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${app.env}")
     private String env;
 
+    @Value("#{${app.metas}}")
+    private Map<String, String> metas;
+
     @PostConstruct
     private void init() {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(RpcProvider.class);
@@ -60,6 +63,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         ip = InetAddress.getLocalHost().getHostAddress();
         instance = InstanceMeta.http(ip, Integer.valueOf(port));
+        instance.getParameters().putAll(metas);
         rc.start();
         skeleton.keySet().forEach(this::registryService);
     }

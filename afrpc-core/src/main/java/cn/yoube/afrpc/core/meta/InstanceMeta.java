@@ -1,10 +1,11 @@
 package cn.yoube.afrpc.core.meta;
 
+import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,7 +25,7 @@ public class InstanceMeta {
     private String context;
 
     private boolean status;
-    private Map<String, String> parameters;
+    private Map<String, String> parameters = new HashMap<>();
 
     public InstanceMeta(String scheme, String host, Integer port, String context) {
         this.scheme = scheme;
@@ -45,4 +46,7 @@ public class InstanceMeta {
         return new InstanceMeta("http", host, port, "");
     }
 
+    public String toMetas() {
+        return JSON.toJSONString(parameters);
+    }
 }

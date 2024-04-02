@@ -6,6 +6,7 @@ import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.meta.ServiceMeta;
 import cn.yoube.afrpc.core.registry.ChangedListener;
 import cn.yoube.afrpc.core.registry.Event;
+import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
@@ -16,9 +17,9 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author LimMF
@@ -61,7 +62,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             }
             // 创建实例的临时节点
             String instancePath = servicePath + "/" + instance.toPath();
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instance.toMetas().getBytes());
             log.info(" ===> register to zk: " + instance);
         } catch (Exception e) {
             throw new RpcException(e);
@@ -92,9 +93,20 @@ public class ZkRegistryCenter implements RegistryCenter {
             // 获取所以子节点
             List<String> nodes = client.getChildren().forPath(servicePath);
             log.info(" ===> fetchAll from zk: " + servicePath);
-            return nodes.stream().map(x -> {
-                String[] strings = x.split("_");
-                return InstanceMeta.http(strings[0], Integer.valueOf(strings[1]));
+            return nodes.stream().map(node -> {
+                String[] strings = node.split("_");
+                InstanceMeta instance = InstanceMeta.http (strings[0], Integer.valueOf(strings[1]));
+
+                String nodePath = servicePath + "/" + node;
+                byte[] bytes;
+                try {
+                    bytes = client.getData().forPath(nodePath);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                String mates = new String(bytes);
+                instance.setParameters(JSON.parseObject(mates, HashMap.class));
+                return instance;
             }).collect(Collectors.toList());
         } catch (Exception e) {
             throw new RpcException(e);
