@@ -3,6 +3,7 @@ package cn.yoube.afrpc.core.meta;
 import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = {"scheme", "host", "port", "context"})
 public class InstanceMeta {
 
     private String scheme;
@@ -43,7 +45,7 @@ public class InstanceMeta {
     }
 
     public static InstanceMeta http(String host, Integer port) {
-        return new InstanceMeta("http", host, port, "");
+        return new InstanceMeta("http", host, port, "afrpc");
     }
 
     public String toMetas() {
