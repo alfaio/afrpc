@@ -1,13 +1,14 @@
 package cn.yoube.afrpc.core.consumer;
 
 import cn.yoube.afrpc.core.annotation.RpcConsumer;
-import cn.yoube.afrpc.core.api.*;
+import cn.yoube.afrpc.core.api.RegistryCenter;
+import cn.yoube.afrpc.core.api.RpcContext;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.meta.ServiceMeta;
 import cn.yoube.afrpc.core.util.MethodUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -18,7 +19,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 消费者启动类
@@ -34,34 +34,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
-    @Value("${app.id}")
-    private String app;
-
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("${app.retries}")
-    private int retries;
-
-    @Value("${app.timeout}")
-    private int timeout;
+    @Autowired
+    RpcContext context;
 
     public void start() {
 
-        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
-        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-
-        RpcContext context = new RpcContext();
-        context.setRouter(router);
-        context.setLoadBalancer(loadBalancer);
-        context.setFilters(filters);
-        context.getParameters().put("app.retries", String.valueOf(retries));
-        context.getParameters().put("app.timeout", String.valueOf(timeout));
 
         /*String urls = environment.getProperty("afrpc.providers", "");
         if (Strings.isEmpty(urls)) {
@@ -95,7 +73,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter registryCenter) {
         String serviceName = service.getCanonicalName();
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(app).namespace(namespace).env(env).name(serviceName).build();
+                .app(context.getParam("app.id"))
+                .namespace(context.getParam("app.namespace"))
+                .env(context.getParam("app.env"))
+                .name(serviceName).build();
         List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
         log.info(" ===> map to providers: ");
 

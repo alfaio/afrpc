@@ -1,7 +1,7 @@
 package cn.yoube.afrpc.demo.provider;
 
 import cn.yoube.afrpc.core.api.RpcResponse;
-import cn.yoube.afrpc.core.provider.ProviderConfig;
+import cn.yoube.afrpc.core.config.ProviderConfig;
 import cn.yoube.afrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;

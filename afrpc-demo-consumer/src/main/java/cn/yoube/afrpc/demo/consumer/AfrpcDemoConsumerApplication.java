@@ -3,7 +3,7 @@ package cn.yoube.afrpc.demo.consumer;
 import cn.yoube.afrpc.core.annotation.RpcConsumer;
 import cn.yoube.afrpc.core.api.Router;
 import cn.yoube.afrpc.core.cluster.GrayRouter;
-import cn.yoube.afrpc.core.consumer.ConsumerConfig;
+import cn.yoube.afrpc.core.config.ConsumerConfig;
 import cn.yoube.afrpc.demo.api.OrderService;
 import cn.yoube.afrpc.demo.api.User;
 import cn.yoube.afrpc.demo.api.UserService;

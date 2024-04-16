@@ -1,34 +1,33 @@
-package cn.yoube.afrpc.core.consumer;
+package cn.yoube.afrpc.core.config;
 
-import cn.yoube.afrpc.core.api.Filter;
-import cn.yoube.afrpc.core.api.LoadBalancer;
-import cn.yoube.afrpc.core.api.RegistryCenter;
-import cn.yoube.afrpc.core.api.Router;
+import cn.yoube.afrpc.core.api.*;
 import cn.yoube.afrpc.core.cluster.GrayRouter;
 import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
-import cn.yoube.afrpc.core.filter.CacheFilter;
-import cn.yoube.afrpc.core.filter.MockFilter;
+import cn.yoube.afrpc.core.consumer.ConsumerBootstrap;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
+
+import java.util.List;
 
 /**
  * @author LimMF
  * @since 2024/3/10
  **/
 @Configuration
+@Import({AppProperties.class, ConsumerProperties.class})
 public class ConsumerConfig {
 
-    @Value("${afrpc.providers}")
-    String servers;
-
-    @Value("${app.grayRatio}")
-    private int grayRatio;
+    @Autowired
+    AppProperties appProperties;
+    @Autowired
+    ConsumerProperties consumerProperties;
 
     @Bean
     ConsumerBootstrap consumerBootstrap() {
@@ -50,7 +49,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router<InstanceMeta> router() {
-        return new GrayRouter(grayRatio);
+        return new GrayRouter(consumerProperties.getGrayRatio());
     }
 
    /* @Bean
@@ -66,6 +65,22 @@ public class ConsumerConfig {
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter consumer_rc() {
         return new ZkRegistryCenter();
+    }
+
+    @Bean
+    @RefreshScope
+    public RpcContext rpcContext(@Autowired Router<InstanceMeta> router,
+                                 @Autowired LoadBalancer<InstanceMeta> loadBalancer,
+                                 @Autowired List<Filter> filters) {
+        RpcContext context = new RpcContext();
+        context.setRouter(router);
+        context.setLoadBalancer(loadBalancer);
+        context.setFilters(filters);
+        context.getParameters().put("app.id", appProperties.getId());
+        context.getParameters().put("app.namespace", appProperties.getNamespace());
+        context.getParameters().put("app.env", appProperties.getEnv());
+        context.setConsumerProperties(consumerProperties);
+        return context;
     }
 
 }

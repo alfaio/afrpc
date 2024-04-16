@@ -1,5 +1,6 @@
 package cn.yoube.afrpc.core.api;
 
+import cn.yoube.afrpc.core.config.ConsumerProperties;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
@@ -17,7 +18,24 @@ public class RpcContext {
     List<Filter> filters;
     Router<InstanceMeta> router;
     LoadBalancer<InstanceMeta> loadBalancer;
+    private Map<String, String> parameters = new HashMap<>();
+    private ConsumerProperties consumerProperties;
 
-    Map<String, String> parameters = new HashMap<>();
+    private ThreadLocal<Map<String, String>> contextParameters = ThreadLocal.withInitial(() -> new HashMap<>());
 
+    public String getParam(String key) {
+        return parameters.get(key);
+    }
+
+    public void setContextParameters(String key, String value) {
+        contextParameters.get().put(key, value);
+    }
+
+    public void getContextParameters(String key) {
+        contextParameters.get().get(key);
+    }
+
+    public void removeContextParameters(String key) {
+        contextParameters.get().remove(key);
+    }
 }

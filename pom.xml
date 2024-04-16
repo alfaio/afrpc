@@ -4,12 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.yoube</groupId>
     <artifactId>afrpc</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${afrpc.version}</version>
     <packaging>pom</packaging>
     <name>afrpc</name>
     <description>afrpc</description>
 
     <properties>
+        <afrpc.version>0.0.1-SNAPSHOT</afrpc.version>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>

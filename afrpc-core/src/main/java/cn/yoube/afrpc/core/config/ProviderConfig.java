@@ -1,6 +1,8 @@
-package cn.yoube.afrpc.core.provider;
+package cn.yoube.afrpc.core.config;
 
 import cn.yoube.afrpc.core.api.RegistryCenter;
+import cn.yoube.afrpc.core.provider.ProviderBootstrap;
+import cn.yoube.afrpc.core.provider.ProviderInvoker;
 import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import cn.yoube.afrpc.core.transport.SpringBootTransport;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ import org.springframework.core.annotation.Order;
  * @since 2024/3/7
  **/
 @Configuration
-@Import(SpringBootTransport.class)
+@Import({AppProperties.class, ProviderProperties.class, SpringBootTransport.class})
 public class ProviderConfig {
 
     @Bean

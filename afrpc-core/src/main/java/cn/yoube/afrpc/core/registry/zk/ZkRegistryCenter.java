@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ZkRegistryCenter implements RegistryCenter {
 
-    @Value("${afrpc.zkServer}")
+    @Value("${afrpc.zk.server:localhost:2181}")
     String servers;
-    @Value("${afrpc.zkRoot}")
+    @Value("${afrpc.zk.root:afrpc}")
     String root;
     private CuratorFramework client = null;
 

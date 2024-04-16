@@ -5,7 +5,7 @@
     <parent>
         <groupId>cn.yoube</groupId>
         <artifactId>afrpc</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${afrpc.version}</version>
     </parent>
     <artifactId>afrpc-demo-provider</artifactId>
     <name>afrpc-demo-provider</name>
