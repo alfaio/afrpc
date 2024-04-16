@@ -21,21 +21,21 @@ public class RpcContext {
     private Map<String, String> parameters = new HashMap<>();
     private ConsumerProperties consumerProperties;
 
-    private ThreadLocal<Map<String, String>> contextParameters = ThreadLocal.withInitial(() -> new HashMap<>());
+    public static ThreadLocal<Map<String, String>> contextParameters = ThreadLocal.withInitial(() -> new HashMap<>());
 
     public String getParam(String key) {
         return parameters.get(key);
     }
 
-    public void setContextParameters(String key, String value) {
+    public static void setContextParameter(String key, String value) {
         contextParameters.get().put(key, value);
     }
 
-    public void getContextParameters(String key) {
-        contextParameters.get().get(key);
+    public static String getContextParameter(String key) {
+        return contextParameters.get().get(key);
     }
 
-    public void removeContextParameters(String key) {
+    public static void removeContextParameter(String key) {
         contextParameters.get().remove(key);
     }
 }

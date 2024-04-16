@@ -27,7 +27,7 @@ public class AfrpcDemoProviderApplication {
 
     @GetMapping(value = "/setPorts")
     public RpcResponse<String> setPorts(@RequestParam("ports") String ports) {
-         userService.setSleepPorts(ports);
+        userService.setTimeoutPorts(ports);
         RpcResponse<String> response = new RpcResponse<>();
         response.setStatus(true);
         response.setData("OK:" + ports);

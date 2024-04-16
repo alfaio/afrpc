@@ -2,6 +2,7 @@ package cn.yoube.afrpc.demo.consumer;
 
 import cn.yoube.afrpc.core.annotation.RpcConsumer;
 import cn.yoube.afrpc.core.api.Router;
+import cn.yoube.afrpc.core.api.RpcContext;
 import cn.yoube.afrpc.core.cluster.GrayRouter;
 import cn.yoube.afrpc.core.config.ConsumerConfig;
 import cn.yoube.afrpc.demo.api.OrderService;
@@ -53,7 +54,7 @@ public class AfrpcDemoConsumerApplication {
     @GetMapping("/find")
     public User find(@RequestParam("sleepTime") int sleepTime) {
         long start = System.currentTimeMillis();
-        User user = userService.findWithTimeout(sleepTime);
+        User user = userService.find(sleepTime);
         System.out.println("userService findWithTimeout take: " + (System.currentTimeMillis() - start) + "ms");
         return user;
     }
@@ -62,11 +63,7 @@ public class AfrpcDemoConsumerApplication {
     @Bean
     public ApplicationRunner consumerRunner() {
         return x -> {
-            long start = System.currentTimeMillis();
-            userService.findWithTimeout(200);
-            System.out.println("userService findWithTimeout take: " + (System.currentTimeMillis() - start) + "ms");
-
-//            testAll();
+            testAll();
         };
     }
 
@@ -103,8 +100,9 @@ public class AfrpcDemoConsumerApplication {
 
         // 测试参数是User类型
         System.out.println("Case 8. >>===[测试参数是User类型]===");
-        System.out.println("userService.getId(new User(100,\"AF\")) = " +
-                userService.getId(new User(100,"AF")));
+        System.out.println("userService.getId(new User(100,\"KK\")) = " +
+                userService.getId(new User(100, "KK")));
+
 
         System.out.println("Case 9. >>===[测试返回long[]]===");
         System.out.println(" ===> userService.getLongIds(): ");
@@ -121,15 +119,15 @@ public class AfrpcDemoConsumerApplication {
         // 测试参数和返回值都是List类型
         System.out.println("Case 11. >>===[测试参数和返回值都是List类型]===");
         List<User> list = userService.getList(List.of(
-                new User(100, "AF100"),
-                new User(101, "AF101")));
+                new User(100, "KK100"),
+                new User(101, "KK101")));
         list.forEach(System.out::println);
 
         // 测试参数和返回值都是Map类型
         System.out.println("Case 12. >>===[测试参数和返回值都是Map类型]===");
         Map<String, User> map = new HashMap<>();
-        map.put("A200", new User(200, "AF200"));
-        map.put("A201", new User(201, "AF201"));
+        map.put("A200", new User(200, "KK200"));
+        map.put("A201", new User(201, "KK201"));
         userService.getMap(map).forEach(
                 (k,v) -> System.out.println(k + " -> " + v)
         );
@@ -139,8 +137,8 @@ public class AfrpcDemoConsumerApplication {
 
         System.out.println("Case 14. >>===[测试参数和返回值都是User[]类型]===");
         User[] users = new User[]{
-                new User(100, "AF100"),
-                new User(101, "AF101")};
+                new User(100, "KK100"),
+                new User(101, "KK101")};
         Arrays.stream(userService.findUsers(users)).forEach(System.out::println);
 
         System.out.println("Case 15. >>===[测试参数为long，返回值是User类型]===");
@@ -158,5 +156,27 @@ public class AfrpcDemoConsumerApplication {
         } catch (RuntimeException e) {
             System.out.println(" ===> exception: " + e.getMessage());
         }
+
+        System.out.println("Case 18. >>===[测试服务端抛出一个超时重试后成功的场景]===");
+        // 超时设置的【漏斗原则】
+        // A 2000 -> B 1500 -> C 1200 -> D 1000
+        long start = System.currentTimeMillis();
+        userService.find(1100);
+        userService.find(1100);
+        System.out.println("userService.find take "
+                + (System.currentTimeMillis() - start) + " ms");
+
+        System.out.println("Case 19. >>===[测试通过Context跨消费者和提供者进行传参]===");
+        String Key_Version = "rpc.version";
+        String Key_Message = "rpc.message";
+        RpcContext.setContextParameter(Key_Version, "v8");
+        RpcContext.setContextParameter(Key_Message, "this is a v8 message");
+        String version = userService.echoParameter(Key_Version);
+        RpcContext.setContextParameter(Key_Version, "v9");
+        RpcContext.setContextParameter(Key_Message, "this is a v9 message");
+        String message = userService.echoParameter(Key_Message);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
+        //RpcContext.ContextParameters.get().clear();
     }
 }

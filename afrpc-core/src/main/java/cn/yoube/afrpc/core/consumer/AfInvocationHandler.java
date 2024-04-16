@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +43,7 @@ public class AfInvocationHandler implements InvocationHandler {
         this.service = service;
         this.context = context;
         this.providers = providers;
-        int timeout = Integer.parseInt(context.getParameters().getOrDefault("app.timeout", "1000"));
+        int timeout = context.getConsumerProperties().getTimeout();
         this.httpInvoker = new OkHttpInvoker(timeout);
         this.executor = Executors.newScheduledThreadPool(1);
         this.executor.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
@@ -66,8 +65,7 @@ public class AfInvocationHandler implements InvocationHandler {
         request.setMethodSign(MethodUtils.methodSign(method));
         request.setArgs(args);
         // 重试是否需要包含filter这段？？？
-        int retries = Integer.parseInt(context.getParameters()
-                .getOrDefault("app.retries", "1"));
+        int retries = context.getConsumerProperties().getRetries();
 
         while (retries-- > 0) {
             log.debug(" ===> retries: " + retries);
@@ -121,8 +119,9 @@ public class AfInvocationHandler implements InvocationHandler {
 
                 // 这里拿到的可能不是最终结果
                 for (Filter filter : context.getFilters()) {
-                    response = filter.postFilter(request, response);
-                    if (response!=null) {
+                    RpcResponse filterResponse = filter.postFilter(request, response);
+                    if (filterResponse != null) {
+                        response = filterResponse;
                         break;
                     }
                 }

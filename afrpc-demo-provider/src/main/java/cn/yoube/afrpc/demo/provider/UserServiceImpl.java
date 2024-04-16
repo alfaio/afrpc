@@ -1,18 +1,17 @@
 package cn.yoube.afrpc.demo.provider;
 
 import cn.yoube.afrpc.core.annotation.RpcProvider;
+import cn.yoube.afrpc.core.api.RpcContext;
 import cn.yoube.afrpc.demo.api.User;
 import cn.yoube.afrpc.demo.api.UserService;
-import com.google.common.collect.Lists;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author LimMF
@@ -28,13 +27,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(int id) {
-        return new User(id, "AF-" + environment.getProperty("server.port") +
-                "_" + System.currentTimeMillis());
+        return new User(id, "KK-V1-"
+                + environment.getProperty("server.port")
+                + "_" + System.currentTimeMillis());
     }
 
     @Override
     public User findById(int id, String name) {
-        return new User(id, "AF-" + name + "_" + System.currentTimeMillis());
+        return new User(id, "KK-" + name + "_" + System.currentTimeMillis());
     }
 
     @Override
@@ -54,12 +54,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getName() {
-        return "AF123";
+        return "KK123";
     }
 
     @Override
     public String getName(int id) {
-        return "AF-" + id;
+        return "Cola-" + id;
     }
 
     @Override
@@ -78,65 +78,68 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long[] getLongIds(Long[] longIds) {
-        return longIds;
-    }
-
-    @Override
     public User[] findUsers(User[] users) {
         return users;
     }
 
     @Override
     public List<User> getList(List<User> userList) {
+        User[] users = userList.toArray(new User[userList.size()]);
+        System.out.println(" ==> userList.toArray()[] = ");
+        Arrays.stream(users).forEach(System.out::println);
+        userList.add(new User(2024, "KK2024"));
         return userList;
     }
 
     @Override
-    public Set<User> getSet(Set<User> userSet) {
-        return userSet;
-    }
-
-    @Override
     public Map<String, User> getMap(Map<String, User> userMap) {
+        userMap.values().forEach(x -> System.out.println(x.getClass()));
+        User[] users = userMap.values().toArray(new User[userMap.size()]);
+        System.out.println(" ==> userMap.values().toArray()[] = ");
+        Arrays.stream(users).forEach(System.out::println);
+        userMap.put("A2024", new User(2024, "KK2024"));
         return userMap;
     }
 
     @Override
     public Boolean getFlag(boolean flag) {
-        return flag;
+        return !flag;
     }
 
     @Override
     public User findById(long id) {
-        return new User(Long.valueOf(id).intValue(), "AF");
+        return new User(Long.valueOf(id).intValue(), "KK");
     }
 
     @Override
     public User ex(boolean flag) {
         if(flag) throw new RuntimeException("just throw an exception");
-        return new User(100, "af100");
+        return new User(100, "KK100");
     }
 
-    private String sleepPorts = "8081";
+    String timeoutPorts = "8081,8094";
 
     @Override
-    public User findWithTimeout(int sleepTime) {
+    public User find(int timeout) {
         String port = environment.getProperty("server.port");
-        if (Lists.newArrayList(sleepPorts.split(",")).contains(port)) {
+        if (Arrays.stream(timeoutPorts.split(",")).anyMatch(port::equals)) {
             try {
-                Thread.sleep(sleepTime);
-                log.debug(" ===> sleep {} ms", sleepTime);
+                Thread.sleep(timeout);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-        return new User(sleepTime, "AF-" + environment.getProperty("server.port") +
-                "_" + System.currentTimeMillis());
+        return new User(1001, "KK1001-" + port);
+    }
+
+    public void setTimeoutPorts(String timeoutPorts) {
+        this.timeoutPorts = timeoutPorts;
     }
 
     @Override
-    public void setSleepPorts(String ports) {
-        this.sleepPorts = ports;
+    public String echoParameter(String key) {
+        System.out.println(" ====>> RpcContext.ContextParameters: ");
+        RpcContext.contextParameters.get().forEach((k, v) -> System.out.println(k + " -> " + v));
+        return RpcContext.getContextParameter(key);
     }
 }

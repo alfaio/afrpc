@@ -2,7 +2,6 @@ package cn.yoube.afrpc.demo.api;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface UserService {
 
@@ -21,18 +20,12 @@ public interface UserService {
     String getName(int id);
 
     int[] getIds();
-
     long[] getLongIds();
-
     int[] getIds(int[] ids);
-
-    Long[] getLongIds(Long[] longIds);
 
     User[] findUsers(User[] users);
 
     List<User> getList(List<User> userList);
-
-    Set<User> getSet(Set<User> userSet);
 
     Map<String, User> getMap(Map<String, User> userMap);
 
@@ -42,7 +35,9 @@ public interface UserService {
 
     User ex(boolean flag);
 
-    User findWithTimeout(int sleepTime);
+    User find(int timeout);
 
-    void setSleepPorts(String ports);
+    void setTimeoutPorts(String timeoutPorts);
+
+    String echoParameter(String key);
 }
