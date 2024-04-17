@@ -151,12 +151,12 @@ public class AfInvocationHandler implements InvocationHandler {
             Object data = response.getData();
             return TypeUtils.castMethodResult(method, data);
         } else {
-            if (response.getException() instanceof RpcException rpcException) {
-                throw rpcException;
+            if (response.getException() != null) {
+                log.error(" ===> rpc exception.", response.getException());
+                throw response.getException();
             }
-            throw new RpcException(response.getException(), RpcException.UnknownEx);
+            throw new RpcException(RpcException.UnknownEx);
         }
     }
-
 
 }
