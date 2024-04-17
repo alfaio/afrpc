@@ -37,7 +37,7 @@ public class ConsumerConfig {
 
     @Bean
     @Order(Integer.MIN_VALUE)
-    public ApplicationRunner consumer_Runner(@Autowired ConsumerBootstrap consumerBootstrap) {
+    public ApplicationRunner consumerRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
         return x -> {
             consumerBootstrap.start();
         };
@@ -64,7 +64,7 @@ public class ConsumerConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public RegistryCenter consumer_rc() {
+    public RegistryCenter registryCenter() {
         return new ZkRegistryCenter();
     }
 

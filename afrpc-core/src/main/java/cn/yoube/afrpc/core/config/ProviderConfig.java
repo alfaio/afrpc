@@ -32,14 +32,14 @@ public class ProviderConfig {
 
     @Bean
     @Order(Integer.MIN_VALUE)
-    public ApplicationRunner consumer_Runner(@Autowired ProviderBootstrap providerBootstrap) {
+    public ApplicationRunner providerRunner(@Autowired ProviderBootstrap providerBootstrap) {
         return x -> {
             providerBootstrap.start();
         };
     }
 
     @Bean //(initMethod = "start", destroyMethod = "stop")
-    public RegistryCenter provider_rc() {
+    public RegistryCenter providerRc() {
         return new ZkRegistryCenter();
     }
 }
