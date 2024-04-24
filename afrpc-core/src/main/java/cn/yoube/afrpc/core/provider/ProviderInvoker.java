@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * invoker for provider
+ *
  * @author LimMF
  * @since 2024/3/20
  **/
@@ -44,7 +46,7 @@ public class ProviderInvoker {
             response.setData(data);
         } catch (InvocationTargetException e) {
             response.setException(new RpcException(e.getTargetException().getMessage()));
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             response.setException(new RpcException(e.getMessage()));
         } finally {
             RpcContext.contextParameters.get().clear(); // 防止内存泄露和上下文污染
