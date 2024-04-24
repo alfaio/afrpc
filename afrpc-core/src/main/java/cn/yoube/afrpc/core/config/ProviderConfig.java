@@ -3,6 +3,7 @@ package cn.yoube.afrpc.core.config;
 import cn.yoube.afrpc.core.api.RegistryCenter;
 import cn.yoube.afrpc.core.provider.ProviderBootstrap;
 import cn.yoube.afrpc.core.provider.ProviderInvoker;
+import cn.yoube.afrpc.core.registry.af.AfRegistryCenter;
 import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import cn.yoube.afrpc.core.transport.SpringBootTransport;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,6 @@ public class ProviderConfig {
 
     @Bean //(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter provider_rc() {
-        return new ZkRegistryCenter();
+        return new AfRegistryCenter();
     }
 }

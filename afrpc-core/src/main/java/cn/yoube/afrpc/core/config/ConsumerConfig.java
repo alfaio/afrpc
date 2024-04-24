@@ -6,6 +6,7 @@ import cn.yoube.afrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.yoube.afrpc.core.consumer.ConsumerBootstrap;
 import cn.yoube.afrpc.core.filter.ContextParameterFilter;
 import cn.yoube.afrpc.core.meta.InstanceMeta;
+import cn.yoube.afrpc.core.registry.af.AfRegistryCenter;
 import cn.yoube.afrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -65,7 +66,7 @@ public class ConsumerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter consumer_rc() {
-        return new ZkRegistryCenter();
+        return new AfRegistryCenter();
     }
 
     @Bean
