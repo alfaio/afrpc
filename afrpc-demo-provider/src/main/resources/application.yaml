@@ -9,4 +9,4 @@ afregistry:
 logging:
   level:
     root: error
-    cn.yoube.afrpc: info
+    io.github.alfaio.afrpc: info

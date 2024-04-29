@@ -8,4 +8,4 @@ afregistry:
 logging:
   level:
     root: error
-    cn.yoube.afrpc: debug
+    io.github.alfaio.afrpc: debug

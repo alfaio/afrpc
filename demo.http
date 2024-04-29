@@ -15,7 +15,7 @@ POST http://localhost:8081/
 Content-Type: application/json
 
 {
-  "service": "cn.yoube.afrpc.demo.api.UserService",
+  "service": "io.github.alfaio.afrpc.demo.api.UserService",
   "methodSign": "findById@1_int",
   "args": [200]
 }
