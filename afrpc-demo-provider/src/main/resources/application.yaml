@@ -9,4 +9,4 @@ afregistry:
 logging:
   level:
     root: error
-    io.github.alfaio.afrpc: info
+    io.github.alfaio: debug

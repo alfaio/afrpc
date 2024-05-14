@@ -19,3 +19,6 @@ Content-Type: application/json
   "methodSign": "findById@1_int",
   "args": [200]
 }
+
+### getMetas
+GET http://localhost:8081/metas

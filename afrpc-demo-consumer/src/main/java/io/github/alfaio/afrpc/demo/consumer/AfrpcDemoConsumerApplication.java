@@ -1,5 +1,6 @@
 package io.github.alfaio.afrpc.demo.consumer;
 
+import io.github.alfaio.afconfig.client.annotation.EnableAFConfig;
 import io.github.alfaio.afrpc.core.annotation.RpcConsumer;
 import io.github.alfaio.afrpc.core.api.Router;
 import io.github.alfaio.afrpc.core.api.RpcContext;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@EnableAFConfig
 @RestController
 @SpringBootApplication
 @Import(ConsumerConfig.class)

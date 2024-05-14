@@ -1,7 +1,9 @@
 package io.github.alfaio.afrpc.demo.provider;
 
+import io.github.alfaio.afconfig.client.annotation.EnableAFConfig;
 import io.github.alfaio.afrpc.core.api.RpcResponse;
 import io.github.alfaio.afrpc.core.config.ProviderConfig;
+import io.github.alfaio.afrpc.core.config.ProviderProperties;
 import io.github.alfaio.afrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@EnableAFConfig
 @SpringBootApplication
 @RestController
 @Import(ProviderConfig.class)
@@ -23,7 +26,16 @@ public class AfrpcDemoProviderApplication {
     }
 
     @Autowired
+    ProviderProperties providerProperties;
+
+    @Autowired
     UserService userService;
+
+    @GetMapping("metas")
+    public String meta() {
+        System.out.println(System.identityHashCode(providerProperties.getMetas()));
+        return providerProperties.getMetas().toString();
+    }
 
     @GetMapping(value = "/setPorts")
     public RpcResponse<String> setPorts(@RequestParam("ports") String ports) {
